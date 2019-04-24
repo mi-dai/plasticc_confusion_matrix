@@ -120,6 +120,8 @@ def main():
 
     classids = [x for x in list(probs) if x[0].isdigit()]
     print(classids,'classids')
+#    newclassids = [x for x in classids if
+
     y_pred = probs[classids].idxmax(axis=1).values.astype(int)
 #    print(y_pred[0:10])
     y_true = truth['target'].values
@@ -144,10 +146,14 @@ def main():
     fig = plt.figure(figsize=(10,10))
 
     inds = newinds
+    print(cnf_matrix[0,:])
     plot_confusion_matrix(cnf_matrix, classes=classes, newinds=inds,normalize=True,
                           title='Normalized confusion matrix-z{}_{}-{}'.format(zrange[0],zrange[1],filenum))
     fig.savefig("{}_z{}_{}.pdf".format(submission_file,zrange[0],zrange[1]))
-
+    
+    f = open("{}_z{}_{}.txt".format(submission_file,zrange[0],zrange[1]),'w')
+    np.savetxt(f, np.transpose(cnf_matrix), delimiter=' ')
+    f.close()               
 
 if __name__ == "__main__":
     main()
