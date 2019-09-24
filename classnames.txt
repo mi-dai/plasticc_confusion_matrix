@@ -1,9 +1,9 @@
 ORIG_NUM   MODEL_NUM   TARGET     MODEL_NAME
-        11          11       90    SNIa-normal
-         3           3       62       SNCC-Ibc
-        12           2       42        SNCC-II
+        11          11       90           SNIa
+         3           3       62         SN-Ibc
+        12           2       42          SN-II
         41          41       67      SNIa-91bg
-        43          43       52         SNIa-x
+        43          43       52          SNIax
         51          51       64             KN
         60          60       95         SLSN-I
         61          99       99          Other
@@ -13,4 +13,4 @@ ORIG_NUM   MODEL_NUM   TARGET     MODEL_NAME
         81          81       65         Mdwarf
         83          83       16            EBE
         84          84       53           MIRA
-        93          91        6    uLens-Point
+        93          91        6   uLens-Single
