@@ -1,6 +1,7 @@
 from __future__ import print_function
 import itertools
 import numpy as np
+import numpy.ma as ma
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -11,9 +12,9 @@ from sklearn.metrics import confusion_matrix
 import pandas as pd
 import sys
 
-## Kara to do
-# implement class 99 renormalization
-class99 = False
+class99 = True
+
+kaggle_name = 'Major Tom'
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
@@ -34,13 +35,28 @@ def plot_confusion_matrix(cm, classes,
     fig = plt.figure(figsize=(10,10))
     ax = plt.gca()
 
-    im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
+    cm_diagonal = np.zeros(np.shape(cm))
+    for i in range(np.shape(cm)[0]):
+        cm_diagonal[i, i] = cm[i, i]
 
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.1)
-    plt.colorbar(im, cax=cax)
+    cm_off_diagonal = np.zeros(np.shape(cm))
+    for i in range(np.shape(cm)[0]):
+        for j in range(np.shape(cm)[1]):
+            if i != j:
+                cm_off_diagonal[i, j] = cm[i, j]
 
-    ax.set_title('Confusion Matrix - No Class 99 : Major Tom')#title) # - No Class 99
+    ma_cm_diagonal = ma.masked_array(cm_diagonal, cm_diagonal<0.03)
+    ma_cm_off_diagonal = ma.masked_array(cm_off_diagonal, cm_off_diagonal<0.005)
+
+    im = ax.imshow(ma_cm_off_diagonal, interpolation='nearest', cmap=plt.cm.Reds,
+                   vmin=0., vmax=np.amax(ma_cm_off_diagonal))
+    im1 = ax.imshow(ma_cm_diagonal, interpolation='nearest', cmap=plt.cm.Blues,
+                    vmin=0., vmax=1.)
+
+    if class99:
+        ax.set_title(kaggle_name)
+    else:
+        ax.set_title('{} - No Class 99'.format(kaggle_name))
     tick_marks = np.arange(len(classes))
     ax.set_xticks(tick_marks)
     ax.set_xticklabels(classes, rotation=45, size=12)
@@ -49,8 +65,12 @@ def plot_confusion_matrix(cm, classes,
     ax.set_yticklabels(classes, size=12)
 
     fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
+
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        if i == j:
+            thresh = cm.max() / 2.
+        else:
+            thresh = np.amax(ma_cm_off_diagonal) / 2.
         ax.text(j, i, format(cm[i, j], fmt),
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
@@ -58,7 +78,12 @@ def plot_confusion_matrix(cm, classes,
     ax.set_ylabel('True label', size=15)
     ax.set_xlabel('Predicted label', size=15)
     plt.tight_layout()
-    fig.savefig("{}_noclass99.pdf".format(title)) #_noclass99
+    if class99:
+        fig.savefig("{}_20191015.pdf".format(title))
+        fig.savefig("{}_20191015.png".format(title))
+    else:
+        fig.savefig("{}_noclass99_20191015.pdf".format(title))
+        fig.savefig("{}_noclass99_20191015.png".format(title))
 
 
 def main():
