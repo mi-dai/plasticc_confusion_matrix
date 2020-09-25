@@ -21,7 +21,7 @@ def main():
     else:
         no99 = False
     filenum = submission_file.split('.csv')[0]
-    truth_file = "plasticc_test_truthtable.csv"
+    truth_file = "../validation_class/truth_table_WFD_2.csv"
     classname_file = "classnames.txt"
     z_file = "redshifts.tsv"
     classlist = [6,15,16,42,52,53,62,64,65,67,88,90,92,95,99]
@@ -41,16 +41,24 @@ def main():
 
     print("Reading in submission")
     probs = pd.read_csv(submission_file,sep=',',header=0)
-    probs.rename(columns={x: x.split('_')[1] for x in list(probs) if x != 'object_id'},inplace=True)
+    probs.rename(columns={'objids':'object_id'},inplace=True)
+    probs.rename(columns={x: str(x) for x in list(probs) if x != 'object_id'},inplace=True)
+    probs['99'] = 0.
     print("Done reading in submission:",submission_file)
     truth = pd.read_csv(truth_file,sep=',',header=0)
+    truth.rename(columns={'objids':'object_id'},inplace=True)
+    probs.rename(columns={x: str(x) for x in list(truth) if x != 'object_id'},inplace=True)
+    truth['99'] = 0.
 
-    truth = truth.join(ztable.set_index('object_id'),on='object_id',how='inner')
-    probs = probs.join(ztable.set_index('object_id'),on='object_id',how='inner')
+    # truth = truth.join(ztable.set_index('object_id'),on='object_id',how='inner')
+    # probs = probs.join(ztable.set_index('object_id'),on='object_id',how='inner')
     probs.sort_values(by='object_id',inplace=True)
     truth.sort_values(by='object_id',inplace=True)
 
     classids = [x for x in list(probs) if x[0].isdigit()]
+
+    truth['target'] = truth[classids].idxmax(axis=1).values.astype(int)
+
     y_pred = probs[classids].idxmax(axis=1).values.astype(int)
     print(y_pred[0:10])
     y_true = truth['target'].values
